@@ -1,0 +1,226 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voter Login</title>
+    <style>
+         body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        .locked {
+            background-color: red !important;
+            cursor: not-allowed;
+        }
+        header {
+        background-color: #333;
+        color: #fff;
+        padding: 20px;
+        text-align: center;
+    }
+
+    header h1 {
+        margin: 0;
+    }
+
+    nav {
+        margin-top: 20px;
+        margin-left: 70%;
+    }
+
+    nav a {
+        text-decoration: none;
+        color: #fff;
+        background-color: blue;
+        padding: 8px 16px;
+        margin: 0 10px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    nav a:hover {
+        background-color: green;
+    }
+
+    .login-container {
+        max-width: 600px;
+        margin: 90px auto;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .login-form h2 {
+        margin-bottom: 20px;
+    }
+
+    .input-container {
+        position: relative;
+        width: 90%;
+        margin-bottom: 15px;
+    }
+
+    .input-container input[type="text"],
+    .input-container input[type="password"] {
+        width: 100%;
+        padding: 10px 40px 10px 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .input-container .fa {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 10px;
+        color: #888;
+        cursor: pointer;
+    }
+
+    .login-form button {
+        width: 100%;
+        padding: 10px;
+        background-color: blue;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .login-form button:hover {
+        background-color: green;
+    }
+
+    .error-message {
+        color: red;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    
+    /* Modal styles */
+    .modal {
+        display: none; 
+        position: fixed; 
+        z-index: 1; 
+        padding-top: 100px; 
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%; 
+        overflow: auto; 
+        background-color: rgb(0,0,0); 
+        background-color: rgba(0,0,0,0.4); 
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 65%;
+        max-width: 40%;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .continuebtn { 
+        width: 100%;
+        padding: 10px;
+        background-color: blue;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        
+    }
+    .continuebtn:hover {
+        background-color: green;
+    }
+
+    
+</style>
+
+</head>
+<body>
+    <header>
+        <h1>e-Voting system</h1>
+        <nav>
+            <a href="vote_casting/election_detail_table.php">Election detail</a>
+            <a href="admin/policy_view.php">Policy</a>
+            <a href="admin/admin_login.html">Admin</a>
+        </nav>
+    </header>
+    <div class="login-container">
+        <form method="POST" action="indexphp.php" class="login-form">
+            <h2 align="center">Voter Login Page</h2>
+            <?php if (isset($error_message)): ?>
+                <div class="error-message"><?php echo $error_message; ?></div>
+            <?php endif; ?>
+            <div class="input-container">
+                <input type="text" name="reg_no" placeholder="Enter Your Registration Number example bcse_xx_2021" required>
+                <i class="fa fa-user"></i>
+            </div>
+            <div class="input-container">
+                <input type="password" name="password" placeholder="Password" required id="password">
+                <i class="fa fa-eye" id="togglePassword"></i>
+            </div>
+            <button type="submit" id="loginButton">Login</button>
+            <div id="countdown" style="text-align:center; color:red; font-weight:bold;"></div>
+            <br><br><br>
+            <a href="voter/password_reset.php" class="continuebtn">Reset Password</a>
+        </form>
+    </div>
+    <script>
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function (e) {
+            const password = document.getElementById('password');
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        // Lockout functionality
+        <?php if (isset($remaining_time) && $remaining_time > 0): ?>
+            var remainingTime = <?php echo $remaining_time; ?>;
+            var loginButton = document.getElementById('loginButton');
+            var countdown = document.getElementById('countdown');
+            loginButton.classList.add('locked');
+            loginButton.disabled = true;
+
+            var countdownInterval = setInterval(function () {
+                if (remainingTime > 0) {
+                    loginButton.textContent = 'Wait ' + remainingTime + ' seconds';
+                    countdown.textContent = 'Please wait ' + remainingTime + ' seconds before trying again.';
+                    remainingTime--;
+                } else {
+                    clearInterval(countdownInterval);
+                    loginButton.classList.remove('locked');
+                    loginButton.disabled = false;
+                    loginButton.textContent = 'Login';
+                    countdown.textContent = '';
+                }
+            }, 1000);
+        <?php endif; ?>
+    </script>
+</body>
+</html>
